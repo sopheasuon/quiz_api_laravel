@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Author;
+use App\Http\Resources\AuthorResource;
 
 class AuthorController extends Controller
 {
@@ -13,8 +14,11 @@ class AuthorController extends Controller
      */
     public function index()
     {
-       return Author::get();
-       return Book::paginate(5);
+        
+        return AuthorResource::collection(Author::orderBy('id', 'desc')->get());
+        // return Author::with("book");
+        return AuthorResource::paginate(3);
+       
     }
 
     /**
@@ -38,7 +42,6 @@ class AuthorController extends Controller
 
         return response()->json(['message' => 'Created'], 201);
 
-        return response()->json(['message' => 'Not fond'], 404);
     }
 
     /**
@@ -62,8 +65,8 @@ class AuthorController extends Controller
     public function update(Request $request, $id)
     {
         $validate = $request->validate([
-            'name' => 'required|unique:author|max:10|min:3',
-            'age' => 'required|uniques:author|max:10|min:1'
+            'name' => 'max:10|min:3',
+            'age' => 'max:10|min:1'
         ]);
 
         $author = Author::findOrFail($id);
@@ -73,8 +76,6 @@ class AuthorController extends Controller
         $author->save();
 
         return response()->json(['message' => 'Updated'], 200);
-
-        return response()->json(['message' => 'Not fond'], 404);
     }
 
     /**

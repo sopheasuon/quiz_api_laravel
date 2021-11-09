@@ -1,9 +1,9 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
 use App\Models\Book;
+use App\Http\Resources\BookResource;
 
 class BookController extends Controller
 {
@@ -14,9 +14,10 @@ class BookController extends Controller
      */
     public function index()
     {
-        return Book::get();
-        return Book::paginate(5);
-
+        
+        // return Book::with('author')->get();
+        return BookResource::collection(Book::paginate(3));
+        // return Book::paginate(3);
     }
 
     /**
@@ -37,9 +38,10 @@ class BookController extends Controller
         $book = new Book();
         $book-> title= $request->title;
         $book-> body= $request->body;
+        $book-> author_id = $request->author_id;
         $book->save();
 
-        return response()->json(['message' => 'Updated'], 201);
+        return response()->json(['message' => 'Created'], 201);
     }
 
     /**
@@ -62,14 +64,14 @@ class BookController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $validate = $request->validate([
-            'title' => 'required|unique:book|max:10|min:3',
-            'body' => 'required|uniques:book|max:50|min:3'
+        $request->validate([
+            'title' => 'min:3|max:10',
+            'body' => 'min:3|max:50'
         ]);
-        
         $book = Book::findOrFail($id);
         $book-> title= $request->title;
         $book-> body= $request->body;
+        $book-> author_id = $request->author_id;
         $book->save();
 
         return response()->json(['message' => 'Updated'], 200);
